@@ -43,6 +43,10 @@ module JRuby
         end
       end
 
+      def streamed?
+        !(@headers && @headers['Content-Length'])
+      end
+
       def write_status(response)
         response.setStatus(@status.to_i)
       end
@@ -101,7 +105,7 @@ module JRuby
             method = @body.respond_to?(:each_line) ? :each_line : :each
             @body.send(method) do |line|
               outputstream.write(line.to_java_bytes)
-              outputstream.flush if chunked?
+              outputstream.flush if streamed?
             end
           end
         rescue LocalJumpError => e
