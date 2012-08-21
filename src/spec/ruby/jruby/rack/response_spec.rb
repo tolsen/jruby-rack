@@ -119,13 +119,15 @@ describe JRuby::Rack::Response do
       end
     end
 
-    it "does not flush after write if Content-Length header is set" do
+    it "does not flush after write if Content-Length header is set and Transfer-Encoding header is not set" do
       @body.should_receive(:each).
         and_yield("hello").
         and_yield("there")
       @headers.should_receive(:[]).with('Content-Length').
         exactly(3).times.
         and_return("hellothere".size)
+      @servlet_response.should_not_receive(:addHeader).with("Transfer-Encoding", "chunked")
+      @response.chunked?.should eql(false)
       @response.streamed?.should eql(false)
       stream.should_receive(:write).exactly(2).times
       stream.should_not_receive(:flush)

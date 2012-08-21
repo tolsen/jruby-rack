@@ -105,7 +105,7 @@ module JRuby
             method = @body.respond_to?(:each_line) ? :each_line : :each
             @body.send(method) do |line|
               outputstream.write(line.to_java_bytes)
-              outputstream.flush if streamed?
+              outputstream.flush if streamed? || chunked?
             end
           end
         rescue LocalJumpError => e
